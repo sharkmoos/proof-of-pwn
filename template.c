@@ -2,25 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-char random_string[] = "{{ random_string }}";
-char user_input[{{ size }}];
-ssize_t compare_size = (sizeof(user_input) / sizeof(char) + {{ random_increase }}  );
+
+int streq(char* left, char* right, int count) {
+  for (int cursor = 0; cursor < count; cursor++) {
+    char l = left[cursor];
+    char r = right[cursor];
+
+    if (l != r) return 0;
+  }
+
+  return 1;
+}
 
 int main()
 {
+    char canary[] = "{{ random_string }}";
+    char user_input[{{ size }}];
+
     puts("I am challenge {{ challenge_name }} \nGive me your best!");
+
     gets(user_input);
 
-    if ( strlen(user_input) != compare_size )
+    if (!streq(canary, "{{ random_string }}", {{ random_string_len }}))
     {
-        printf("Got length %d but wanted %d", strlen(user_input), compare_size);
-        exit(0);
+        puts("HACKING DETECTED. EXITING WITH EXTREME PREJUDICE");
+        exit(-1);
     }
-
-    for ( int i=0; i < {{ random_string_len }}; i++ )
-    {
-        if ( random_string[i] != user_input[i] )
-            exit(0);
-    }
-    exit(1);
+    puts("Valid");
+    return 0;
 }
