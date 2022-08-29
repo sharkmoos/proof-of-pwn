@@ -13,9 +13,9 @@ environment = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
 template_file = environment.get_template("template.c")
 code_dir: str = "binary_source/"
 binary_dir: str = "binaries/"
-compilation_options: list = ["gcc", "-O0"]
-input_timeout = 5
-crash_timeout = 5
+compilation_options: list = ["gcc", "-O0", "-fno-stack-protector", "-no-pie"]
+input_timeout: int = 5
+crash_timeout: int = 5
 
 
 def randomword(length: int):
