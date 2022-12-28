@@ -4,19 +4,38 @@ from pwn import *
 import os
 import subprocess
 
-from solvers import ChallengeSolver, LevelZeroSolver, LevelOneSolver ,LevelTwoSolver, LevelThreeSolver, LevelFourSolver, submit_stage_code
+from solvers import LevelZeroSolver, LevelOneSolver, LevelTwoSolver, LevelThreeSolver, LevelFourSolver, submit_stage_code
 
 ip, comms_port, challenge_port = "127.0.0.1", 1337, 9999
 stage_code_file = "stage_codes.json"
 binary_dir = "binaries"
 
+context.log_level = "INFO"
+
+
+def collect_flags(stage_codes: dict, r) -> None:
+    r.sendline(b"reset")
+    pause(1)
+    for code in stage_codes:
+        r.sendline(code)
+        if code == [1, 26, 76, 151, 251]:
+            flag = r.recvline_contains(b"cueh", timeout=1).split(b":")[1].strip().decode()
+            if len(flag) > 1:
+                log.success(f"Flag: {flag}")
+            else:
+                log.error("Failed to get flag")
+        r.clean()
+
 
 def collect_new_zip(level: str) -> None:
     log.info(f"Collecting {level} zip file")
     sleep(7)
-    os.popen(f"wget http://localhost:4750 -O binaries/{level}.zip")
-    os.popen(f"unzip binaries/{level}.zip -d binaries/{level}")
-    os.remove(f"binaries/{level}.zip")
+    p = process(["wget", "http://localhost:4750", "-O", f"binaries/{level}.zip"], level="ERROR")
+    p.poll(True)
+    p = process([f"unzip", f"binaries/{level}.zip", "-d", f"binaries/{level}"], level="ERROR")
+    p.poll(True)
+    
+    #os.remove(f"binaries/{level}.zip")
 
 
 def submit_already_solved(connection, stage_codes: dict):
@@ -28,7 +47,6 @@ def submit_already_solved(connection, stage_codes: dict):
 
 def solve_stage_zero(stage_codes: dict, r) -> bool:
     level_zero_solver = LevelZeroSolver(ip, challenge_port, binary_dir, "./flag.txt", r)
-
 
     level_0_challenges = sorted(os.listdir(level_zero_solver.binary_dir))
     for challenge in level_0_challenges:
@@ -56,15 +74,18 @@ def solve_stage_one(stage_codes: dict, r) -> bool:
     """
     level_one_solver = LevelOneSolver(ip, challenge_port, binary_dir, "./flag.txt", r)
     level_one_solver.binary_dir = os.path.join(binary_dir, "level_1")
-    level_1_challenges = sorted(os.listdir(level_one_solver.binary_dir))
-    for challenge in level_1_challenges:
+
+    level_one_challenges = [f for f in os.listdir("binaries/level_1")]
+    level_one_challenges.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+
+    for challenge in level_one_challenges:
         if not level_one_solver.solve_level(os.path.join(level_one_solver.binary_dir, challenge)):
             log.critical("Failed to solve level 1 challenge: {}".format(challenge))
 
     for code in level_one_solver.stage_codes:
         stage_codes[(len(stage_codes))] = code
 
-    if len(level_one_solver.stage_codes) == len(level_1_challenges):
+    if len(level_one_solver.stage_codes) == len(level_one_challenges):
         log.success("Solved all level 0 challenges")
         return True
     else:
@@ -74,7 +95,10 @@ def solve_stage_one(stage_codes: dict, r) -> bool:
 
 def solve_stage_two(stage_codes: dict, r) -> bool:
     level_two_solver = LevelTwoSolver(ip, challenge_port, binary_dir, "./flag.txt", r)
-    level_two_challenges = sorted(os.listdir(level_two_solver.binary_dir))
+
+    level_two_challenges = [f for f in os.listdir("binaries/level_2")]
+    level_two_challenges.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+
     for challenge in level_two_challenges:
         if not level_two_solver.solve_level(os.path.join(level_two_solver.binary_dir, challenge)):
             log.critical("Failed to solve level 2 challenge: {}".format(challenge))
@@ -89,16 +113,20 @@ def solve_stage_two(stage_codes: dict, r) -> bool:
         log.critical("Failed to solve all level 2 challenges")
         return False
 
+
 def solve_stage_three(stage_codes: dict, r) -> bool:
     level_three_solver = LevelThreeSolver(ip, challenge_port, binary_dir, "./flag.txt", r)
-    level_three_challenges = sorted(os.listdir(level_three_solver.binary_dir))
+
+    level_three_challenges = [f for f in os.listdir("binaries/level_3")]
+    level_three_challenges.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+
     for challenge in level_three_challenges:
         if not level_three_solver.solve_level(os.path.join(level_three_solver.binary_dir, challenge)):
             log.critical("Failed to solve level 3 challenge: {}".format(challenge))
             exit()
+        else:
+            stage_codes[(len(stage_codes))] = level_three_solver.stage_codes[-1]
 
-    for code in level_three_solver.stage_codes:
-        stage_codes[(len(stage_codes))] = code
 
     if len(level_three_solver.stage_codes) == len(level_three_challenges):
         log.success("Solved all level 3 challenges")
@@ -110,7 +138,10 @@ def solve_stage_three(stage_codes: dict, r) -> bool:
 
 def solve_stage_four(stage_codes: dict, r) -> bool:
     level_four_solver = LevelFourSolver(ip, challenge_port, binary_dir, "./flag.txt", r)
-    level_four_challenges = sorted(os.listdir(level_four_solver.binary_dir))
+
+    level_four_challenges = [f for f in os.listdir("binaries/level_4")]
+    level_four_challenges.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+
     for challenge in level_four_challenges:
         if not level_four_solver.solve_level(os.path.join(level_four_solver.binary_dir, challenge)):
             log.critical("Failed to solve level 4 challenge: {}".format(challenge))
@@ -125,6 +156,7 @@ def solve_stage_four(stage_codes: dict, r) -> bool:
     else:
         log.critical("Failed to solve all level 4 challenges")
         return False
+
 
 def main():
     stage_codes = {}
@@ -149,6 +181,7 @@ def main():
             exit(1)
         with open(stage_code_file, "wt") as f:
             json.dump(stage_codes, f, indent=4)
+
     else:
         log.info("Already solved level 0. Skipping")
 
@@ -203,11 +236,13 @@ def main():
             len(os.listdir(os.path.join(binary_dir, "level_4"))):
         if not solve_stage_four(stage_codes, r):
             pass
-            #exit(1)
+            # exit(1)
         with open(stage_code_file, "wt") as f:
             json.dump(stage_codes, f, indent=4)
     else:
         log.info("Already solved level 4. Skipping")
+
+    collect_flags(stage_codes, r)
 
 
 if __name__ == "__main__":

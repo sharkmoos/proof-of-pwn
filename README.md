@@ -1,4 +1,4 @@
-# Through the Rings of Pwn
+# Rings of Pwn
 
 - Author: sharkmoos
 - Difficulty: Medium 

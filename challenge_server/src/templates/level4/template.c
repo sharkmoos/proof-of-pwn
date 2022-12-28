@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
 int streq(char* left, char* right, int count) {
   for (int cursor = 0; cursor < count; cursor++) {
     char l = left[cursor];
@@ -31,13 +33,13 @@ int main()
 
     struct
     {
+        char *random_ptr;
         char buf[{{ buf_size }}];
         char canary[{{ random_string_len }}];
     } data;
 
-    char *random_ptr = generate_string();
+    random_ptr = generate_string();
     strcpy(data.canary, random_ptr);
-
 
     char user_input[{{ buf_size }}];
 

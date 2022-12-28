@@ -60,7 +60,9 @@ if __name__ == "__main__":
     challenge_binaries = {}
     counter = 0
     for challenge_stage in sorted(os.listdir("/challenge_server/binaries/")):
-        for challenge in sorted(os.listdir(os.path.join("/challenge_server/binaries/", challenge_stage))):
+        challenges = [f for f in os.listdir(os.path.join("/challenge_server/binaries/", challenge_stage))]
+        challenges.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+        for challenge in challenges:
             challenge_binaries[counter] = os.path.join("/challenge_server/binaries/", challenge_stage, challenge)
             counter += 1
 
