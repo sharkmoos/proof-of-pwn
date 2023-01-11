@@ -6,7 +6,7 @@ import subprocess
 
 from solvers import LevelZeroSolver, LevelOneSolver, LevelTwoSolver, LevelThreeSolver, LevelFourSolver, submit_stage_code
 
-ip, comms_port, challenge_port = "127.0.0.1", 1337, 9999
+ip, comms_port, challenge_port = "127.0.0.1", 8888, 9999
 stage_code_file = "stage_codes.json"
 binary_dir = "binaries"
 

@@ -1,8 +1,7 @@
-import os, pwn, angr
-from ctypes import CDLL
+import os
+import pwn
+import angr
 
-
-libc_ctype = CDLL("libc.so.6")
 
 def check_mem_corruption(simgr):
     if len(simgr.unconstrained):
@@ -25,14 +24,6 @@ def find_offset(binary_name: str) -> tuple:
             angr.options.ZERO_FILL_UNCONSTRAINED_REGISTERS,
         }
     )
-
-    # class ReplacementSrand(angr.SimProcedure):
-    #     def run(self, seed):
-    #         libc_ctype.srand(seed)
-    #
-    # class ReplacementRand(angr.SimProcedure):
-    #     def run(self, seed):
-    #         return libc_ctype.rand()
 
     sim = project.factory.simgr(state, save_unconstrained=True)
     # create a stash to store states with memory corruption
