@@ -36,7 +36,7 @@ challenge_maps: dict = {
         "source_path": os.path.join(code_dir, "level1"),
         "binary_path": os.path.join(ex_dir, "level1"),
         "zip_path": os.path.join(ex_dir, "level1.zip"),
-        "binary_count": 5,
+        "binary_count": 25,
     },
     2: {
         # 50 ret2libc
@@ -44,7 +44,7 @@ challenge_maps: dict = {
         "source_path": os.path.join(code_dir, "level2"),
         "binary_path": os.path.join(ex_dir, "level2"),
         "zip_path": os.path.join(ex_dir, "level2.zip"),
-        "binary_count": 5,
+        "binary_count": 50,
     },
     3: {
         # 100 ret2libc + stack cookie
@@ -52,7 +52,7 @@ challenge_maps: dict = {
         "source_path": os.path.join(code_dir, "level3"),
         "binary_path": os.path.join(ex_dir, "level3"),
         "zip_path": os.path.join(ex_dir, "level3.zip"),
-        "binary_count": 5,
+        "binary_count": 75,
     },
     4: {
         # 100 ret2libc + stack cookie
@@ -60,7 +60,7 @@ challenge_maps: dict = {
         "source_path": os.path.join(code_dir, "level4"),
         "binary_path": os.path.join(ex_dir, "level4"),
         "zip_path": os.path.join(ex_dir, "level4.zip"),
-        "binary_count": 5,
+        "binary_count": 100,
     }
 }
 

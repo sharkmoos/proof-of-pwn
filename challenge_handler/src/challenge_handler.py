@@ -15,23 +15,23 @@ import time
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-TOTAL_CHALLENGES = 21  # int(os.getenv("TOTAL_CHALLENGES"))  # TODO: Initiate this properly once you're testing all challs
 challenge_progress = 0  # total number of challenges completed
 current_level_stage = 0  # overall stages ( 1 - 4 )
 max_challenges = 0  # displayed number of challenges overall. Increases each time a stage is complete
 flag_count = 0  # TODO: This does more than it probably should, and is semi redundant due to the current_level_stage var. Will remove if I have time
 http_thread_ptr: multiprocessing.Process = None  # This is a bit of a mess. Still, multi processing is a mess
 http_port = 4750
+submitted_stage_codes = []
 
 socketserver.TCPServer.allow_reuse_address = True
 
 # The keys represent the value of challenge_progress to trigger a flag.
 flags = {
-    1: "cueh{n00b_p0w3rrr}",
-    6: "cueh{n0t_s0_n00b_n0w}",
-    11: "cueh{50}",
-    16: "cueh{750}",
-    21: "cueh{1000}"
+    1:   "cueh{n00b_pwn1e_p0w3rrr}",
+    26:  "cueh{n0t_s0_n00b_n0w}",
+    76:  "cueh{c3rt1f13d_pwn_pr4ct1t10n3r}",
+    151: "cueh{0k_f1n3_y0u_c4n_d3f0_st4ck_sm4sh}",
+    251: "cueh{w3ll_d0n3...1f_y0u_m4d3_1t_th1s_f4r...n3xt_y34r_1t_c4n_b3_h34p_pwn!_or_k3rn3l!}",
 }
 
 # level names are the same as the zip file directories
@@ -54,6 +54,7 @@ class BinaryDownloadHandler(http.server.BaseHTTPRequestHandler):
         """
         with open(self.level_zip, 'rb') as file:
             self.send_response(200)
+            # add a header to set the page name
             self.send_header('Content-type', 'application/zip')
             self.send_header(f'Content-Disposition', f'attachment; filename="level_{flag_count}"')
             self.end_headers()
@@ -114,7 +115,7 @@ class ChallengeRequestHandler(socketserver.BaseRequestHandler):
         """
         self.request.send(b"\033c")
         self.request.send(f"{'':#<30}\n".encode())
-        self.request.send(f"{'  Heart of Pwn    ':#^30}\n".encode())
+        self.request.send(f"{'  Rings of Pwn    ':#^30}\n".encode())
         self.request.send(f"{'':#<30}\n".encode())
         current_solves = f"Progress: {challenge_progress}/{max_challenges}"
         self.request.send(f"\n\n{current_solves}\n".encode())
@@ -136,7 +137,7 @@ class ChallengeRequestHandler(socketserver.BaseRequestHandler):
         :return:
         """
         # TODO: Make the globals less global
-        global http_thread_ptr, current_level_stage, max_challenges, flag_count, challenge_progress
+        global http_thread_ptr, current_level_stage, max_challenges, flag_count, challenge_progress, submitted_stage_codes
 
         # if the player has completed all challenges, don't bother with the rest of the logic
         if flag_count == len(flags):
@@ -147,8 +148,8 @@ class ChallengeRequestHandler(socketserver.BaseRequestHandler):
             self.next_stage_code = stage_codes[challenge_progress + 1]
 
             self.print_banner()
-            self.request.send(b"\n\n- Hit enter to start from the beginning\n")
-            self.request.send(b"- Enter a stage code to resume progress.\n")
+            self.request.send(b"\n\n- Enter the string `reset` to set the progress to zero.\n")
+            self.request.send(b"- Enter a stage code to progress.\n")
             self.request.send(b"- Make sure you've read the CTFd instructions before you start!\n")
 
             # Tricky one, I feel like we should stop once the player has completed all the challenges
@@ -174,11 +175,8 @@ class ChallengeRequestHandler(socketserver.BaseRequestHandler):
                     challenge_progress += 1
                     self.next_stage_code = stage_codes[challenge_progress + 1]
 
-                elif stage_code in stage_codes:
-                    self.request.send(b"Valid stage code, wrong stage\n")
-
                 else:
-                    self.request.send(b"Unrecognised stage code.\n")
+                    self.request.send(b"Invalid stage code.\n")
                     continue
 
                 # write to the FIFO to tell the challenge_server to prepare the next binary.

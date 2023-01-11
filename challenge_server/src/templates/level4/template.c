@@ -31,13 +31,13 @@ int main()
 
     struct
     {
+        char *random_ptr;
         char buf[{{ buf_size }}];
         char canary[{{ random_string_len }}];
     } data;
 
-    char *random_ptr = generate_string();
-    strcpy(data.canary, random_ptr);
-
+    data.random_ptr = generate_string();
+    strcpy(data.canary, data.random_ptr);
 
     char user_input[{{ buf_size }}];
 
@@ -45,7 +45,7 @@ int main()
 
     gets(data.buf);
 
-    if (!streq(data.canary, random_ptr, {{ random_string_len }}))
+    if (!streq(data.canary, data.random_ptr, {{ random_string_len }}))
     {
         puts("HACKING DETECTED. EXITING WITH EXTREME PREJUDICE");
         exit(-1);

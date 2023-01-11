@@ -1,15 +1,12 @@
-import json
-import random
 import os
-import string
 import pickle
+import uuid
 
 
 def generate_stage_codes(number_of_codes) -> list:
     the_stage_codes = []
     while len(the_stage_codes) != number_of_codes:
-        # TODO: Refactor to generate a random uuid instead
-        code = ("".join(random.choices(string.ascii_letters + string.digits, k=16)))
+        code = uuid.uuid4().hex
         if code not in the_stage_codes:
             the_stage_codes.append(code)
 
@@ -17,6 +14,6 @@ def generate_stage_codes(number_of_codes) -> list:
 
 
 if __name__ == "__main__":
-    stage_codes = generate_stage_codes(int(os.getenv("TOTAL_CHALLENGES")))
+    stage_codes = generate_stage_codes(int(os.getenv(1000)))
     with open("/tmp/progress.txt", "wb") as f:
         pickle.dump(stage_codes, f)

@@ -1,4 +1,4 @@
-# Through the Rings of Pwn
+# Rings of Pwn
 
 - Author: sharkmoos
 - Difficulty: Medium 
@@ -10,13 +10,13 @@
 ## Author Brief
 
 This was heavily inspired by one of the DARPA Cyber Grand Challenge (2016) problems, obviously it's a massively simplified
-version and also introduces some concepts not covered in the challenge. It's essentially presenting a 
+version and also introduces some concepts not covered in the CGC. It's essentially presenting a 
 scenario where a piece of software has been identified as vulnerable to a remote code execution vulnerability, and
 there are a number of versions of the program each with minor changes. The players need to exploit one program, and then
-work out how to use that model to create a program with can exploit the other x amount of programs.
+work out how to use that model to create automation which can exploit the other X number of programs.
 
-Currently, it's not too hard. Any single binary in a CTF would barely the easy difficulty, but I have some ideas for more
-complex versions of this problem, and I hope this will be enough of a challenge for this element of the 5 day CTF.
+Currently, it's not too hard. Any single binary in a CTF would barely reach the easy difficulty, but I have some ideas for more
+complex versions of this problem, and I hope this will be enough of a challenge for section of the 5 day CTF.
 
 ### Level 0 
 
