@@ -2,9 +2,8 @@
 
 ## Public Update
 
-If you're reading this code on GitHub, the event this challenge was designed for has probably ended. The challenge
-was written for the Coventry ethical hacking club's winter hacking event. I have made the challenge infrastructure and 
-an example solve script available now for educational purposes.
+If you're reached this repository on GitHub, the event this challenge was written for has probably ended. I have now made 
+the challenge infrastructure and an example solve script available now for educational purposes.
 
 ## Challenge
 
@@ -15,7 +14,7 @@ an example solve script available now for educational purposes.
 > named volumes persist and bad things happen next time the container is brought up.
 
 
-## Author Brief
+# Author Brief
 
 This was heavily inspired by one of the DARPA Cyber Grand Challenge (2016) problems, obviously it's a massively simplified
 version and also introduces some concepts not covered in the CGC. It's essentially presenting a 
@@ -26,20 +25,20 @@ work out how to use that model to create automation which can exploit the other 
 Currently, it's not too hard. Any single binary in a CTF would barely reach the easy difficulty, but I have some ideas for more
 complex versions of this problem, and I hope this will be enough of a challenge for section of the 5 day CTF.
 
-### Level 0 
+## Level 0 
 
 Level 0 is just a tutorial to get people used to the infra. This does not require achieving code execution, 
 the challenge attempts to emulate a fuzzing scenario where simply causing memory corruption is enough. 
 Hopefully the complexity of the infrastructure gives people the hint that they should be looking at solving the challenges
 programmatically, though they may just do `python -c "print 'A' * 100000" | ./levelX`.
 
-### Level 1
+## Level 1
 
 Moving things up a notch here, with 25 versions of the vulnerable program. Rather than just memory corruption, the 
 player will need to `ret2win` to get the flag. By this point it should be obvious that the players should be programming
 their solutions, and anyone familiar with pwntools ELF module or a similar symbol parser should make short work of this.
 
-### Level 2
+## Level 2
 
 This is where things *start* to get interesting. The players are presented with 50 versions of the vulnerable program, 
 and they need to implement a ret2plt to get code execution. This is still possibly only using pwntools, but its 
@@ -70,8 +69,9 @@ things up, depending on how fast they get to this stage.
 
 ## Challenge Description (For players)
 
-If you're a bit of a satanist or well-read you may have heard of the gates, levels, rings, or spheres of hell. If you
-can't be bothered to read Dante's Inferno, [here](https://www.penguinrandomhouse.com/articles/a-visitors-guide-to-dantes-nine-circles-of-hell/)
-is an interesting/humorous summary. Essentially things start of pretty dandy, and the further you get in the more shit it
-gets, which is a pretty fair reflection of this challenge!
+If you're religious, or you like reading, you may have heard of the levels/ rings of hell. If you can't be bothered to 
+read Dante's Inferno, here is an interesting/humorous summary. Essentially things in the outer rings of hell start of 
+pretty dandy, and the further you get in the more shit it gets, which is a pretty fair reflection of this challenge!
+
+Download the documentation file (rings_of_pwn_doc.md) to get started, as the infrastructure may not be obvious at first.
 
