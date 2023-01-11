@@ -10,7 +10,7 @@ import levels
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
-TOTAL_CHALLENGES = 21 # int(os.getenv("TOTAL_CHALLENGES")) # TODO: Update this when using all the challenges
+TOTAL_CHALLENGES = int(os.getenv("TOTAL_CHALLENGES"))
 
 # Each of the challenge stages is a distinct class object
 challenge_instances = {
@@ -32,8 +32,11 @@ def load_challenge(challenge_name, stage_code):
     logging.debug("Running challenge: " + challenge_name)
     copy1 = subprocess.Popen(["cp", challenge_name, "/jail/challenge"])
     copy1.wait()
-    if copy1.poll() != 0:
+    while copy1.poll() != 0:
         log.warning("Error copying challenge to jail")
+        copy1 = subprocess.Popen(["cp", challenge_name, "/jail/challenge"])
+        copy1.wait()
+
     with open("/jail/stage_code", "wt") as f:
         f.write(stage_code)
 
@@ -67,3 +70,4 @@ if __name__ == "__main__":
             counter += 1
 
     main()
+
