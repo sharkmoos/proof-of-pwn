@@ -2,4 +2,3 @@ src/binaries/
 binary_source/
 .idea/
 __pycache__/
-src/solve/binaries
