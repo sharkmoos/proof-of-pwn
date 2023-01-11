@@ -31,7 +31,7 @@ challenge_maps: dict = {
         "binary_count": 1,
     },
     1: {
-        # 5 ret2wins
+        # 25 ret2wins
         "name": "level1",
         "source_path": os.path.join(code_dir, "level1"),
         "binary_path": os.path.join(ex_dir, "level1"),
@@ -39,7 +39,7 @@ challenge_maps: dict = {
         "binary_count": 25,
     },
     2: {
-        # 50 ret2libc
+        # 50 ret2plt
         "name": "level2",
         "source_path": os.path.join(code_dir, "level2"),
         "binary_path": os.path.join(ex_dir, "level2"),
@@ -47,7 +47,7 @@ challenge_maps: dict = {
         "binary_count": 50,
     },
     3: {
-        # 100 ret2libc + stack cookie
+        # 75 ret2libc
         "name": "level3",
         "source_path": os.path.join(code_dir, "level3"),
         "binary_path": os.path.join(ex_dir, "level3"),
