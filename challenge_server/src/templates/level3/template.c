@@ -3,14 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void vuln(char *str)
-{
-    char buf[ {{ buf_size}} ];
-    gets(buf);
-    strcpy(buf, str);
-    return;
-}
-
 {{cruff_functions}}
 
 

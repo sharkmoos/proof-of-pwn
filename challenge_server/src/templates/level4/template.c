@@ -14,6 +14,8 @@ int streq(char* left, char* right, int count) {
   return 1;
 }
 
+{{ cruff_functions }}
+
 char* generate_string()
 {
     char *string = (char*) malloc({{ random_string_len }} + 1);
