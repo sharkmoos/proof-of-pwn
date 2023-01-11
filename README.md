@@ -1,5 +1,13 @@
 # Rings of Pwn
 
+## Public Update
+
+If you're reading this code on GitHub, the event this challenge was designed for has probably ended. The challenge
+was written for the Coventry ethical hacking club's winter hacking event. I have made the challenge infrastructure and 
+an example solve script available now for educational purposes.
+
+## Challenge
+
 - Author: sharkmoos
 - Difficulty: Medium 
 
