@@ -139,7 +139,6 @@ class ChallengeBuilder:
                     "random_string_len": len(random_string),
                     "buf_size": buf_size,
                     "cruff_functions": self.generate_cruff_functions(random.randint(5, 15)),
-                    "random_seed": random.randint(1, 50),
                 }
             ))
         challenge_count += 1

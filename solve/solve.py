@@ -41,7 +41,7 @@ def find_offset(binary_name: str) -> tuple:
         # pwn.log.info(f"Offset: {offset}")
         return True, valid_payload_offset
     else:
-        return False, b""
+        # return False, b""
         raise Exception(f'[!] Could not find the solution for {binary_name}')
 
 
