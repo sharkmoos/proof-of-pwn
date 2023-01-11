@@ -1,6 +1,5 @@
 FROM ubuntu:20.04 as builder
 
-ENV TOTAL_CHALLENGES=1000
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
@@ -22,7 +21,6 @@ RUN python3 generate_challenges.py && python3 generate_stage_codes.py
 
 FROM python:3.10-slim
 
-ENV TOTAL_CHALLENGES=1000
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /challenge_server

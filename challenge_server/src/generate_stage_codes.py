@@ -14,6 +14,6 @@ def generate_stage_codes(number_of_codes) -> list:
 
 
 if __name__ == "__main__":
-    stage_codes = generate_stage_codes(int(os.getenv("TOTAL_CHALLENGES")))
+    stage_codes = generate_stage_codes(int(os.getenv(1000)))
     with open("/tmp/progress.txt", "wb") as f:
         pickle.dump(stage_codes, f)

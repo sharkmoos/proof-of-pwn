@@ -10,7 +10,6 @@ import levels
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
-TOTAL_CHALLENGES = int(os.getenv("TOTAL_CHALLENGES"))
 
 # Each of the challenge stages is a distinct class object
 challenge_instances = {
@@ -52,8 +51,7 @@ def main():
 
         # have to continue to read from the fifo even if we have solved all the levels
         # otherwise it will block and freeze challenge handler container
-        if current_level != TOTAL_CHALLENGES:
-            load_challenge(challenge_binaries[current_level], stage_code)
+        load_challenge(challenge_binaries[current_level], stage_code)
 
 
 if __name__ == "__main__":

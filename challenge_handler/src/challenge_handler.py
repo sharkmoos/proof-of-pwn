@@ -15,7 +15,6 @@ import time
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-TOTAL_CHALLENGES = int(os.getenv("TOTAL_CHALLENGES"))
 challenge_progress = 0  # total number of challenges completed
 current_level_stage = 0  # overall stages ( 1 - 4 )
 max_challenges = 0  # displayed number of challenges overall. Increases each time a stage is complete

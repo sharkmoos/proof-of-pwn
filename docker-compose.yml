@@ -1,22 +1,15 @@
-version: "3.3"
+version: "3.7"
+
 services:
   challenge_handler:
     build: challenge_handler
-    image: challenge_handler
-    container_name: challenge_handler
-    environment:
-      TOTAL_CHALLENGES: 1000
     ports:
-      - "1337:1337"
-      - "4750-4755:4750-4755"   # TODO: Confirm this can be changed to just 4750
+      - "8888:1337"
+      - "4750:4750"
     volumes:
       - challenge_files:/challenge_server # TODO: Work out how to have volumes destroy themselves without -v
   challenge_server:
     build: challenge_server
-    image: challenge_server
-    container_name: challenge_server
-    environment:
-      TOTAL_CHALLENGES: 1000
     volumes:
       - challenge_files:/challenge_server  # Used for the FIFO. I suppose it could be changed to blocking sockets instead but this seems pretty good
       - jail_volume:/jail  # Binds the xinetd jail to the host so the challenge server can copy in the bin & stage code
@@ -24,8 +17,6 @@ services:
       - challenge_handler  # TODO: I may have this the wrong way round. If the problem is only the FIFO it is, but I might have forgotten something else
   xinetd:
     build: xinetd
-    image: ctf_xinetd
-    container_name: ctf_xinetd
     ports:
       - "9999:9999"
     depends_on:
