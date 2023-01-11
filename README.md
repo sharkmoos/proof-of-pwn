@@ -22,6 +22,11 @@ scenario where a piece of software has been identified as vulnerable to remote c
 there are a number of versions of the program each with minor changes. The players needs to exploit one program, and then
 work out how to use that model to create automation which can exploit the other X number of programs.
 
+Challenges are generate at build time, so every player with have a slightly different version of the challenge. This
+has been done through by writing [templates](./challenge_server/src/templates) for each level, and using a templating
+engine to add random functions, strings, buffer sizes and other challenge attributes (such as a random stack cookie, for the later
+levels)
+
 Currently, it's not too hard. Any single binary in a CTF would barely reach the easy difficulty, so it'll be a programming
 problem for anyone comfortable with binexp, and a learning experience on both for those who aren't. I have some ideas for more
 complex versions of this problem, and I hope this will be enough of a challenge for section of the 5 day CTF.
