@@ -50,19 +50,17 @@ numbers of gruff functions into the binary to spread things out.
 
 Moving a step higher, the players are presented with 75 versions of the vulnerable program. A full ret2libc is required
 here, and the players will need to implement a libc leak to get the flag. This will not add huge complexity to the exploit,
-but it will test the methodology of the players, as simple things like using the wrong LIBC binary will begin to creep in.
+but it will test the methodology of the players through the additional payload and address leaking calculations 
 
 ## Level 4
 
-This is the largest step up in difficult, as it is multi faceted. The players are presented with 100 versions of the
-binary, the largest set yet. There is a stack cookie in each of the programs, and it should be fairly tricky to obtain
-by just using `strings` or similar, because there are other random strings in the binary too. I used angr to solve this
-level, it may well be possible using binary analysis (such as reverse taint) or another symbolic execution engine. The other
-prong to this challenge is the quality, so the players may need to use multiprocessing and memory optimisations to speed
-things up, depending on how fast they get to this stage.
+This is the largest step up in difficulty, as it is multi faceted. The players are presented with 100 versions of the
+binary. There is a stack cookie in each of the programs. I used angr to solve this level, it may well be possible 
+using binary analysis (such as reverse taint) or another symbolic execution engine. The other prong to this challenge 
+is the quality, so the players may need to use multiprocessing and memory optimisations to speed things up, depending 
+on how fast they get to this stage.
 
 [//]: # (## Level 5)
-
 [//]: # ()
 [//]: # (Level 4 was easy enough? Well, try it again but without any symbols in the binary.)
 
@@ -73,5 +71,6 @@ If you're religious, or you like reading, you may have heard of the levels/ ring
 read Dante's Inferno, here is an interesting/humorous summary. Essentially things in the outer rings of hell start of 
 pretty dandy, and the further you get in the more shit it gets, which is a pretty fair reflection of this challenge!
 
-Download the documentation file (rings_of_pwn_doc.md) to get started, as the infrastructure may not be obvious at first.
+Download the documentation file ([rings_of_pwn_doc.md](./doc.md)) to get started, as the infrastructure may not be 
+obvious at first.
 
